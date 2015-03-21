@@ -16,6 +16,7 @@
 @interface PlateauScene ()
 
 @property BOOL contentCreated;
+@property BOOL senseGame;
 @property int numerosJoueur;
 @property (nonatomic, strong) SKSpriteNode* senseGameIcon;
 @property (nonatomic, strong) NSMutableArray * derniereCombinaison;
@@ -108,32 +109,32 @@
     self.proposition = [NSMutableArray array];
     self.derniereCarte = [[NSMutableArray alloc]initWithCapacity:4];
     self.scores = [[NSMutableArray alloc]initWithCapacity:4];
-    self.senseGame = NO;
+    self.senseGame = YES;
     
     
     
-    for (int i = 0; i<4; i++) {
+    for (int i = 0; i<4; i++)
         [self.scores addObject:[NSNumber numberWithInt:0]];
-    }
+    
 
-    for (int i = 0; i<4; i++) {
+    for (int i = 0; i<4; i++)
         [self.derniereCarte addObject:[NSString stringWithFormat:@"NO"]];
-       
-    }
 
     
-    for (int i = 0; i<self.nombresJoueurs; i++) {
-        [self.nameJoueurArray addObject:[self.userData objectForKey:[NSString stringWithFormat:@"Joueur%i", i+1] ] ];
-        NSLog(@"%@" , [self.userData objectForKey:[NSString stringWithFormat:@"Joueur%i", i+1] ]);
-        [self.joueursAndCartes setValue:[self.carte Extract16CartesForJoueur:i+1] forKey:[self.userData objectForKey:[NSString stringWithFormat:@"Joueur%i", i+1] ]];
-    }
-    
+    [self DistributionWithNombreJoueur:self.nombresJoueurs];
     
     [self AfficherJoueurs];
     [self AfficherScoreJoueur];
     [self AfficherLesCartes];
     [self createGameSense];
     
+}
+
+-(void) DistributionWithNombreJoueur:(int) nbJ{
+    for (int i = 0; i<nbJ; i++) {
+        [self.nameJoueurArray addObject:[self.userData objectForKey:[NSString stringWithFormat:@"Joueur%i", i+1] ] ];
+        [self.joueursAndCartes setValue:[self.carte Extract16CartesForJoueur:i+1] forKey:[self.userData objectForKey:[NSString stringWithFormat:@"Joueur%i", i+1] ]];
+    }
 }
 
 
@@ -210,11 +211,23 @@
     }
 }
 
--(void) AfficherLesCartes{
-    
-    
-    
-    [self AfficheMainJoueurFromArrayWithName:[NSString stringWithFormat:@"Joueur%i", self.numerosJoueur] CarteArray:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:self.numerosJoueur]] posX:-75 posY:-68];
+
+-(void) AfficherCarteWithRotationEffetWithName:(NSString *) name CarteArray:(NSArray *)array posX:(int) x posY:(int) y moveUp:(int) up{
+    for (int i = 0; i<array.count ; i++) {
+        [self.carte CarteSpriteNodeWithX:x Y:y Image:[NSString stringWithFormat:@"carte%i.jpg", [[array objectAtIndex:i] integerValue] ] name: [NSString stringWithFormat:@"%@.%i",name,i] frame:self.frame faceCacher:false];
+        [self addChild:self.carte.carte];
+        x+=10;
+        
+        SKAction *moveup = [SKAction moveByX:(x*-1)+((i - self.derniereCombinaison.count/2)*20) y:60 duration:0.25];
+        SKAction * tounicoton = [SKAction rotateByAngle:360 duration:0.25];
+        SKAction *moveSequence = [SKAction sequence:@[moveup, tounicoton]];
+        
+        [self.carte.carte runAction: moveSequence ];
+    }
+}
+
+-(void) AfficherLesCartesJoueurSens1{
+    [self AfficheMainJoueurFromArrayWithName:[NSString stringWithFormat:@"Joueur%i", self.numerosJoueur] CarteArray:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:self.numerosJoueur]] posX:-75 posY:-70];
     
     
     
@@ -227,15 +240,46 @@
     
     else if (self.nombresJoueurs ==4){
         
-        [self AfficherMainJoueurFaceCacherFromName:[NSString stringWithFormat:@"Joueur%i", (self.numerosJoueur + 2)%self.nombresJoueurs] Array:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:(self.numerosJoueur + 2)%self.nombresJoueurs]] posX:75 posY:5];
+        [self AfficherMainJoueurFaceCacherFromName:[NSString stringWithFormat:@"Joueur%i", (self.numerosJoueur + 2)%self.nombresJoueurs] Array:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:(self.numerosJoueur + 2)%self.nombresJoueurs]] posX:-38  posY:65];
         
-        [self AfficherMainJoueurFaceCacherFromName:[NSString stringWithFormat:@"Joueur%i", (self.numerosJoueur + 3)%self.nombresJoueurs] Array:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:(self.numerosJoueur + 3)%self.nombresJoueurs]] posX:-38 posY:64];
+        [self AfficherMainJoueurFaceCacherFromName:[NSString stringWithFormat:@"Joueur%i", (self.numerosJoueur + 3)%self.nombresJoueurs] Array:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:(self.numerosJoueur + 3)%self.nombresJoueurs]] posX:75 posY:5];
+    }
+    
+    [self AfficherCarteWithRotationEffetWithName:@"derniereCombi" CarteArray:self.derniereCombinaison posX:-60 posY:-35 moveUp:70
+     ];
+}
+
+-(void) AfficherLesCartesJoueurSens2{
+    [self AfficheMainJoueurFromArrayWithName:[NSString stringWithFormat:@"Joueur%i", self.numerosJoueur] CarteArray:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:self.numerosJoueur]] posX:-75 posY:-70];
+    
+    
+    
+    [self AfficherMainJoueurFaceCacherFromName:[NSString stringWithFormat:@"Joueur%i", (self.numerosJoueur + 1)%self.nombresJoueurs]  Array:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:(self.numerosJoueur + 2)%self.nombresJoueurs]] posX:75 posY:5];
+    
+    if (self.nombresJoueurs ==3)
+        [self AfficherMainJoueurFaceCacherFromName:[NSString stringWithFormat:@"Joueur%i", (self.numerosJoueur + 2)%self.nombresJoueurs]  Array:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:(self.numerosJoueur + 1)%self.nombresJoueurs]] posX:-150 posY:5];
+        
+    else if (self.nombresJoueurs ==4){
+        [self AfficherMainJoueurFaceCacherFromName:[NSString stringWithFormat:@"Joueur%i", (self.numerosJoueur + 2)%self.nombresJoueurs] Array:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:(self.numerosJoueur + 2)%self.nombresJoueurs]] posX:-38  posY:65];
+        [self AfficherMainJoueurFaceCacherFromName:[NSString stringWithFormat:@"Joueur%i", (self.numerosJoueur + 3)%self.nombresJoueurs]  Array:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:(self.numerosJoueur + 1)%self.nombresJoueurs]] posX:-150 posY:5];
     }
     
     
-    [self AfficheMainJoueurFromArrayWithName:@"derniereCombi" CarteArray:self.derniereCombinaison posX:-30 posY:70];
+}
+
+-(void) AfficherLesCartes{
+    if (self.senseGame) {
+        [self AfficherLesCartesJoueurSens1];
+    }
+    else
+        [self AfficherLesCartesJoueurSens2];
+    
+    [self AfficherCarteWithRotationEffetWithName:@"derniereCombi" CarteArray:self.derniereCombinaison posX:-60 posY:-35 moveUp:70];
+
     
 }
+
+
 
 -(void) removeAllCartesJoueurs{
     [self RemoveCarteNodeFromName:self.numerosJoueur];
@@ -256,18 +300,24 @@
     [self RemoveNodefromName:@"JoueurPrecedent"];
     [self RemoveNodefromName:@"JoueurEnAttente"];
     [self RemoveNodefromName:@"JoueurSuivant"];
+    
+    if (self.senseGame)
+        [self AfficherJoueurSens1];
+    else
+        [self AfficherJoueurSens2];
+}
 
+-(void) AfficherJoueurSens1{
     [self createLabeljoueurWithX:-30 Y:-92 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:self.numerosJoueur]]  Name:@"JoueurActuel"];
     
     [self createLabeljoueurWithX:-135 Y:-15 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+1)%self.nombresJoueurs]] Name:@"JoueurPrecedent"];
     
-    
-    [self createLabeljoueurWithX:+135 Y:-15 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+2)%self.nombresJoueurs]] Name:@"JoueurSuivant"];
-    
+    if (self.nombresJoueurs == 3)
+        [self createLabeljoueurWithX:+135 Y:-15 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+2)%self.nombresJoueurs]] Name:@"JoueurSuivant"];
     
     if (self.nombresJoueurs ==4){
-        [self createLabeljoueurWithX:+135 Y:-15 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+2)%self.nombresJoueurs]] Name:@"JoueurEnAttente"];
-        [self createLabeljoueurWithX:-30 Y:90 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+3)%self.nombresJoueurs]] Name:@"JoueurSuivant"];
+        [self createLabeljoueurWithX:-30 Y:90 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+2)%self.nombresJoueurs]] Name:@"JoueurEnAttente"];
+        [self createLabeljoueurWithX:+135 Y:-15 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+3)%self.nombresJoueurs]] Name:@"JoueurSuivant"];
         
         BoutonPlateau *antiCarte4 = [BoutonPlateau new];
         [antiCarte4 initSpriteNodeWithX:30 Y:45 nameImage:@"bouttonAnti.gif" name:@"Anti-CarteJ4"  frame:self.frame width:28 heigth:10];
@@ -275,22 +325,64 @@
     }
 }
 
+-(void) AfficherJoueurSens2{
+    [self createLabeljoueurWithX:-30 Y:-92 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:self.numerosJoueur]]  Name:@"JoueurActuel"];
+    
+    [self createLabeljoueurWithX:+135 Y:-15 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+1)%self.nombresJoueurs]] Name:@"JoueurPrecedent"];
 
+    if (self.nombresJoueurs == 3)
+        [self createLabeljoueurWithX:-135 Y:-15 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+2)%self.nombresJoueurs]] Name:@"JoueurPrecedent"];
+
+    if (self.nombresJoueurs ==4){
+        [self createLabeljoueurWithX:-30 Y:90 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+2)%self.nombresJoueurs]] Name:@"JoueurEnAttente"];
+        [self createLabeljoueurWithX:-135 Y:-15 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+3)%self.nombresJoueurs]] Name:@"JoueurSuivant"];
+        
+        BoutonPlateau *antiCarte4 = [BoutonPlateau new];
+        [antiCarte4 initSpriteNodeWithX:30 Y:45 nameImage:@"bouttonAnti.gif" name:@"Anti-CarteJ4"  frame:self.frame width:28 heigth:10];
+        [self addChild:antiCarte4.button];
+    }
+}
 
 -(void) AfficherScoreJoueur{
  
+    if (self.senseGame) {
+        [self AfficherScoreJoueurSens1];
+    }
+    else
+        [self AfficherScoreJoueurSens2];
+}
+
+-(void) AfficherScoreJoueurSens1{
     [self createLabelScoreJoueurWithX:20 Y:-98 textLabel:[NSString stringWithFormat:@"Score : %@",[self.scores objectAtIndex:0]]frame:self.frame width:25 height:10];
     
     [self createLabelScoreJoueurWithX:-135 Y:-34 textLabel:[NSString stringWithFormat:@"Score : %@",[self.scores objectAtIndex:1]]frame:self.frame width:25 height:10];
     
-    [self createLabelScoreJoueurWithX:132 Y:-34 textLabel:[NSString stringWithFormat:@"Score : %@",[self.scores objectAtIndex:2]]frame:self.frame width:25 height:10];
+    if (self.nombresJoueurs == 3) {
+        [self createLabelScoreJoueurWithX:132 Y:-34 textLabel:[NSString stringWithFormat:@"Score : %@",[self.scores objectAtIndex:2]]frame:self.frame width:25 height:10];
+
+    }
     
     if (self.nombresJoueurs == 4) {
-        
-        [self createLabelScoreJoueurWithX:22 Y:81 textLabel:[NSString stringWithFormat:@"Score : %@",[self.scores objectAtIndex:3]]frame:self.frame width:25 height:10];
+        [self createLabelScoreJoueurWithX:132 Y:-34 textLabel:[NSString stringWithFormat:@"Score : %@",[self.scores objectAtIndex:3]]frame:self.frame width:25 height:10];
+        [self createLabelScoreJoueurWithX:22 Y:81 textLabel:[NSString stringWithFormat:@"Score : %@",[self.scores objectAtIndex:2]]frame:self.frame width:25 height:10];
     }
 }
 
+-(void) AfficherScoreJoueurSens2{
+    [self createLabelScoreJoueurWithX:20 Y:-98 textLabel:[NSString stringWithFormat:@"Score : %@",[self.scores objectAtIndex:0]]frame:self.frame width:25 height:10];
+    
+    [self createLabelScoreJoueurWithX:132 Y:-34 textLabel:[NSString stringWithFormat:@"Score : %@",[self.scores objectAtIndex:1]]frame:self.frame width:25 height:10];
+
+    if (self.nombresJoueurs == 3) {
+        [self createLabelScoreJoueurWithX:-135 Y:-34 textLabel:[NSString stringWithFormat:@"Score : %@",[self.scores objectAtIndex:2]]frame:self.frame width:25 height:10];
+        
+    }
+    
+    if (self.nombresJoueurs == 4) {
+        [self createLabelScoreJoueurWithX:-135 Y:-34 textLabel:[NSString stringWithFormat:@"Score : %@",[self.scores objectAtIndex:3]]frame:self.frame width:25 height:10];
+        [self createLabelScoreJoueurWithX:22 Y:81 textLabel:[NSString stringWithFormat:@"Score : %@",[self.scores objectAtIndex:2]]frame:self.frame width:25 height:10];
+    }
+}
 
 
 -(void)RemoveNodefromName:(NSString *) nameNode{
@@ -309,7 +401,12 @@
     }
 }
 
-
+-(void)RemoveCarteNodeWithPositionFromName:(NSString *) name{
+    
+    for (int i = 0; i<self.derniereCombinaison.count; i++){
+        [[self childNodeWithName:[NSString stringWithFormat:@"%@.%i",name, i]] removeFromParent];
+    }
+}
 
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
@@ -369,11 +466,25 @@
         
         //TODO
         
-            
+        if (self.proposition.count == 0) {
             self.view.paused = YES;
+            
             self.validerSansCarte = [[UIAlertView alloc]initWithTitle:@"Attention" message:@"Aucune carte sélectionnée, voulez-vous passer votre tour ?" delegate:self cancelButtonTitle:@"Oui" otherButtonTitles:@"Non", nil];
             self.validerSansCarte.tag = 3;
             [self.validerSansCarte show];
+        }
+        else {
+            [self removeAllCartesJoueurs];
+            [self RemoveCarteNodeWithPositionFromName:@"derniereCombi"];
+            [self.derniereCombinaison removeAllObjects];
+            [self removeAllCarteFromProposition:true];
+            
+            
+            self.numerosJoueur = (self.numerosJoueur+1)%self.nombresJoueurs;
+            [self AfficherJoueurs];
+            [self AfficherLesCartes];
+        }
+
         
         
         
@@ -416,7 +527,11 @@
     else if ([node.name isEqualToString:@"Passer"]){
         
         [self removeAllCartesJoueurs];
+        [self RemoveCarteNodeWithPositionFromName:@"derniereCombi"];
+        [self.derniereCombinaison removeAllObjects];
         [self removeAllCarteFromProposition:true];
+        
+        
         self.numerosJoueur = (self.numerosJoueur+1)%self.nombresJoueurs;
         [self AfficherJoueurs];
         [self AfficherLesCartes];
@@ -533,6 +648,7 @@
             [newCarte removeFromParent];
         }
         if (propositionValider) {
+            [self.derniereCombinaison addObject:[self.proposition objectAtIndex:i]];
             [[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:self.numerosJoueur]] removeObjectAtIndex:indexCarteEnMain];
             carteEliminer++;
         }
