@@ -331,7 +331,7 @@
     [self createLabeljoueurWithX:+135 Y:-15 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+1)%self.nombresJoueurs]] Name:@"JoueurPrecedent"];
 
     if (self.nombresJoueurs == 3)
-        [self createLabeljoueurWithX:-135 Y:-15 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+2)%self.nombresJoueurs]] Name:@"JoueurPrecedent"];
+        [self createLabeljoueurWithX:-135 Y:-15 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+2)%self.nombresJoueurs]] Name:@"JoueurSuivant"];
 
     if (self.nombresJoueurs ==4){
         [self createLabeljoueurWithX:-30 Y:90 textLabel:[NSString stringWithFormat:@"%@",[self.nameJoueurArray objectAtIndex:(self.numerosJoueur+2)%self.nombresJoueurs]] Name:@"JoueurEnAttente"];
