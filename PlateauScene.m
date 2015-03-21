@@ -16,7 +16,6 @@
 @interface PlateauScene ()
 
 @property BOOL contentCreated;
-@property BOOL senseGame;
 @property int numerosJoueur;
 @property (nonatomic, strong) SKSpriteNode* senseGameIcon;
 @property (nonatomic, strong) NSMutableArray * derniereCombinaison;
