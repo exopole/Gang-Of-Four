@@ -1,4 +1,4 @@
-//
+// 
 //  PlateauScene.m
 //  GangOfFourV2
 //
@@ -19,6 +19,7 @@
 @property BOOL senseGame;
 @property int numerosJoueur;
 @property (nonatomic, strong) SKSpriteNode* senseGameIcon;
+@property (nonatomic, strong TestCombinaison * testcombi;
 @property (nonatomic, strong) NSMutableArray * derniereCombinaison;
 @property (nonatomic, strong) NSMutableArray * proposition;
 @property (nonatomic, strong) NSMutableArray* derniereCarte;
