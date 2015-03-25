@@ -13,11 +13,15 @@
 #import "DemarrageSKscene.h"
 #import "Combinaisons.h"
 #import "LabelTexte.h"
+#import "TestCombinaison.h"
+
+
 @interface PlateauScene ()
 
 @property BOOL contentCreated;
 @property BOOL senseGame;
 @property int numerosJoueur;
+@property (nonatomic, strong) TestCombinaison * test;
 @property (nonatomic, strong) SKSpriteNode* senseGameIcon;
 @property (nonatomic, strong) NSMutableArray * derniereCombinaison;
 @property (nonatomic, strong) NSMutableArray * proposition;
@@ -120,6 +124,11 @@
     for (int i = 0; i<4; i++)
         [self.derniereCarte addObject:[NSString stringWithFormat:@"NO"]];
 
+    if(self.nombresJoueurs == 4){
+        BoutonPlateau *antiCarte4 = [BoutonPlateau new];
+        [antiCarte4 initSpriteNodeWithX:30 Y:45 nameImage:@"bouttonAnti.gif" name:@"Anti-CarteJ4" frame:self.frame width:28 heigth:10];
+        [self addChild:antiCarte4.button];
+    }
     
     [self DistributionWithNombreJoueur:self.nombresJoueurs];
     
@@ -211,6 +220,13 @@
     }
 }
 
+-(void) AfficherMainJoueurActuelFaceCacherFromName:(NSString *) name Array:(NSMutableArray *) cartes posX:(int) x posY:(int) y{
+	for (int i = 0; i<cartes.count; i++) {
+        [self.carte CarteSpriteNodeWithX:x Y:y Image:@"carte0.jpg" name: [NSString stringWithFormat:@"%@.%i.%i",name,i ,[[cartes objectAtIndex:i]integerValue ]] frame:self.frame faceCacher:false];
+        [self addChild:self.carte.carte];
+        x+=10;
+	}
+}
 
 -(void) AfficherCarteWithRotationEffetWithName:(NSString *) name CarteArray:(NSArray *)array posX:(int) x posY:(int) y moveUp:(int) up{
     for (int i = 0; i<array.count ; i++) {
@@ -229,8 +245,6 @@
 -(void) AfficherLesCartesJoueurSens1{
     [self AfficheMainJoueurFromArrayWithName:[NSString stringWithFormat:@"Joueur%i", self.numerosJoueur] CarteArray:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:self.numerosJoueur]] posX:-75 posY:-70];
     
-    
-    
     [self AfficherMainJoueurFaceCacherFromName:[NSString stringWithFormat:@"Joueur%i", (self.numerosJoueur + 1)%self.nombresJoueurs]  Array:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:(self.numerosJoueur + 1)%self.nombresJoueurs]] posX:-150 posY:5];
     
     if (self.nombresJoueurs ==3){
@@ -245,14 +259,13 @@
         [self AfficherMainJoueurFaceCacherFromName:[NSString stringWithFormat:@"Joueur%i", (self.numerosJoueur + 3)%self.nombresJoueurs] Array:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:(self.numerosJoueur + 3)%self.nombresJoueurs]] posX:75 posY:5];
     }
     
-    [self AfficherCarteWithRotationEffetWithName:@"derniereCombi" CarteArray:self.derniereCombinaison posX:-60 posY:-35 moveUp:70
-     ];
+    [self AfficherCarteWithRotationEffetWithName:@"derniereCombi" CarteArray:self.derniereCombinaison posX:-60 posY:-35 moveUp:70];
 }
 
 -(void) AfficherLesCartesJoueurSens2{
     [self AfficheMainJoueurFromArrayWithName:[NSString stringWithFormat:@"Joueur%i", self.numerosJoueur] CarteArray:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:self.numerosJoueur]] posX:-75 posY:-70];
     
-    
+     [self AfficherMainJoueurFaceCacherFromName:[NSString stringWithFormat:@"Joueur%i", (self.numerosJoueur + 1)%self.nombresJoueurs] Array:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:(self.numerosJoueur + 1)%self.nombresJoueurs]] posX:75 posY:5];
     
     [self AfficherMainJoueurFaceCacherFromName:[NSString stringWithFormat:@"Joueur%i", (self.numerosJoueur + 1)%self.nombresJoueurs]  Array:[self.joueursAndCartes objectForKey:[self.nameJoueurArray objectAtIndex:(self.numerosJoueur + 2)%self.nombresJoueurs]] posX:75 posY:5];
     
@@ -400,6 +413,8 @@
         [helloNode removeFromParent];
     }
 }
+
+
 
 -(void)RemoveCarteNodeWithPositionFromName:(NSString *) name{
     
@@ -584,6 +599,10 @@
 -(void) PlayCarteFromName:(NSString *) nodeName{
     
     NSArray * myArraynode= [nodeName componentsSeparatedByString:@"."];
+    TestCombinaison * test = [[TestCombinaison alloc] init];
+    int valeur = [test ValeurCarte:[[myArraynode objectAtIndex:2] integerValue]];
+    int couleur = [test CouleurCarte:[[myArraynode objectAtIndex:2] integerValue]];
+    NSLog(@"valeur : %i ; couleur : %i", valeur, couleur);
     int position = [self checkCaseMinimal:self.proposition valeur:[[myArraynode objectAtIndex:2] integerValue]];
     [self moveCarteProposerAfterChoice:position];
     if (position < self.proposition.count) {
